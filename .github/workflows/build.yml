@@ -19,6 +19,14 @@ jobs:
       # This repository (it holds the patch file)
       - uses: actions/checkout@v4
 
+      - name: Check that all patch files are in the repository
+        run: |
+          missing=0
+          for f in tubetv-appletv.patch tubeplus-identity.patch tubeplus-glass.patch; do
+            if [ ! -f "$f" ]; then echo "MISSING FILE in the repo root: $f  (upload it, then run again)"; missing=1; fi
+          done
+          exit $missing
+
       - name: Get SmartTube source (pinned) and apply the Apple TV patch
         run: |
           git init src
