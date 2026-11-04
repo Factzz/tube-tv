@@ -29,6 +29,48 @@ jobs:
           git submodule update --init --recursive --depth 1
           git apply --whitespace=nowarn ../tubetv-appletv.patch
 
+          # Two Java files are edited here instead of inside the patch, so they cannot fail on small source differences
+          python3 - <<'PY'
+          import re, pathlib, sys
+
+          def fail(msg, path, text):
+              print('HOOK FAILED:', msg, path); print(text[:3500]); sys.exit(1)
+
+          # 1) register the Tube Glass colour scheme as the LAST scheme and make it the default
+          p = pathlib.Path('common/src/main/java/com/liskovsoft/smartyoutubetv2/common/prefs/MainUIData.java')
+          t = p.read_text(encoding='utf-8')
+          if 'App.Theme.AppleTV.Browse' not in t:
+              key = 'mColorSchemes.add(new ColorScheme('
+              n = t.count(key)
+              if n == 0: fail('no ColorScheme list found', p, t)
+              last = t.rfind(key)
+              end = t.index('));', last) + 3
+              if 'mContext' not in t[last:end]: fail('unexpected ColorScheme call', p, t[last-200:end+200])
+              add = ('\n        // Tube Glass (YouTube x Apple TV). Keep LAST: its index is the default\n'
+                     '        mColorSchemes.add(new ColorScheme(\n'
+                     '                R.string.color_scheme_apple_tv,\n'
+                     '                "App.Theme.AppleTV.Player",\n'
+                     '                "App.Theme.AppleTV.Browse",\n'
+                     '                "App.Theme.AppleTV.Preferences",\n'
+                     '                mContext));')
+              t = t[:end] + add + t[end:]
+              t, k = re.subn(r'(mColorSchemeIndex\s*=\s*Helpers\.parseInt\(split,\s*3,\s*)\d+(\s*\))', r'\g<1>%d\2' % n, t)
+              if k != 1: fail('default scheme index line not found', p, t)
+              p.write_text(t, encoding='utf-8')
+              print('MainUIData: Tube Glass registered as scheme', n)
+
+          # 2) Glide must not use hardware bitmaps (the glass sidebar snapshots the screen into a software bitmap)
+          p = pathlib.Path('smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/util/GlideCachingModule.java')
+          t = p.read_text(encoding='utf-8')
+          if 'disallowHardwareConfig' not in t:
+              t, k = re.subn(r'(\w+)\.setDiskCache\([^;]*;',
+                             lambda m: m.group(0) + '\n        ' + m.group(1) + '.setDefaultRequestOptions(new com.bumptech.glide.request.RequestOptions().disallowHardwareConfig());',
+                             t, count=1)
+              if k != 1: fail('setDiskCache not found', p, t)
+              p.write_text(t, encoding='utf-8')
+              print('GlideCachingModule: hardware bitmaps disabled')
+          PY
+
       # Step A: the Android SDK installer (sdkmanager) needs JDK 17+
       - uses: actions/setup-java@v5
         with:
