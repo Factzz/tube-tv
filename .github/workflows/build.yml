@@ -1,10 +1,10 @@
-name: Build Tube TV APK
+name: Build Tube+ APK
 
 # Downloads the original SmartTube source (pinned to a known-good version), applies the
 # Apple TV style patch (tubetv-appletv.patch, stored next to this workflow), builds the APK
 # in the cloud and publishes it as a GitHub Release. Nothing to install on your computer.
 #
-# Start it: Actions tab -> "Build Tube TV APK" -> Run workflow.
+# Start it: Actions tab -> "Build Tube+ APK" -> Run workflow.
 on:
   workflow_dispatch:
 
@@ -28,6 +28,10 @@ jobs:
           git checkout FETCH_HEAD
           git submodule update --init --recursive --depth 1
           git apply --whitespace=nowarn ../tubetv-appletv.patch
+          # Tube+ identity (logo, name, colours, progress bar) is layered on top of the first patch
+          git apply --whitespace=nowarn ../tubeplus-identity.patch
+          # Tube+ glass design layer (backdrop, glass player bar, glass dialogs, lit focus) on top of both
+          git apply --whitespace=nowarn ../tubeplus-glass.patch
 
           # Two Java files are edited here instead of inside the patch, so they cannot fail on small source differences
           python3 - <<'PY'
@@ -106,7 +110,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: Tube TV build ${{ github.run_number }}
+          name: Tube+ build ${{ github.run_number }}
           body: "Install the *universal* APK on your Google TV."
           files: src/smarttubetv/build/outputs/apk/ststable/debug/*.apk
           fail_on_unmatched_files: true
