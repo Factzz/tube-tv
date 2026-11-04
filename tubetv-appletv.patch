@@ -1,39 +1,3 @@
-diff --git a/common/src/main/java/com/liskovsoft/smartyoutubetv2/common/prefs/MainUIData.java b/common/src/main/java/com/liskovsoft/smartyoutubetv2/common/prefs/MainUIData.java
-index 8ad0b52..aa14c5f 100644
---- a/common/src/main/java/com/liskovsoft/smartyoutubetv2/common/prefs/MainUIData.java
-+++ b/common/src/main/java/com/liskovsoft/smartyoutubetv2/common/prefs/MainUIData.java
-@@ -100,6 +100,8 @@ public class MainUIData extends DataChangeBase implements ProfileChangeListener
-     private int mCardTitleLinesNum;
-     private float mUIScale;
-     private float mVideoGridScale;
-+    // Index of the Apple TV scheme (the last one added in initColorSchemes)
-+    private static final int DEFAULT_COLOR_SCHEME_INDEX = 8;
-     private final List<ColorScheme> mColorSchemes = new ArrayList<>();
-     private int mColorSchemeIndex;
-     private int mChannelCategorySorting;
-@@ -421,6 +423,13 @@ public class MainUIData extends DataChangeBase implements ProfileChangeListener
-                 "App.Theme.Leanback.Blue.OLED.Browse",
-                 "App.Theme.Leanback.Blue.Preferences",
-                 mContext));
-+        // Apple TV look (gradient backdrop + frosted glass). Keep LAST: its index is the default (see restoreState)
-+        mColorSchemes.add(new ColorScheme(
-+                R.string.color_scheme_apple_tv,
-+                "App.Theme.AppleTV.Player",
-+                "App.Theme.AppleTV.Browse",
-+                "App.Theme.AppleTV.Preferences",
-+                mContext));
-     }
- 
-     private void restoreState() {
-@@ -431,7 +440,7 @@ public class MainUIData extends DataChangeBase implements ProfileChangeListener
-         //mIsCardAnimatedPreviewsEnabled = Helpers.parseBoolean(split, 0, true);
-         mVideoGridScale = Helpers.parseFloat(split, 1, 1.0f); // 4 cards in a row
-         mUIScale = Helpers.parseFloat(split, 2, 1.0f);
--        mColorSchemeIndex = Helpers.parseInt(split, 3, 1);
-+        mColorSchemeIndex = Helpers.parseInt(split, 3, DEFAULT_COLOR_SCHEME_INDEX);
-         mIsCardMultilineTitleEnabled = Helpers.parseBoolean(split, 4, true);
-         mChannelCategorySorting = Helpers.parseInt(split, 5, CHANNEL_SORTING_LAST_VIEWED);
-         mPlaylistsStyle = Helpers.parseInt(split, 6, PLAYLISTS_STYLE_GRID);
 diff --git a/common/src/main/res/values/strings.xml b/common/src/main/res/values/strings.xml
 index 6d7dc75..14959e9 100644
 --- a/common/src/main/res/values/strings.xml
@@ -398,28 +362,6 @@ index 0000000..da78424
 +        }
 +    }
 +}
-diff --git a/smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/util/GlideCachingModule.java b/smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/util/GlideCachingModule.java
-index d5760a0..92dbd33 100644
---- a/smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/util/GlideCachingModule.java
-+++ b/smarttubetv/src/main/java/com/liskovsoft/smartyoutubetv2/tv/util/GlideCachingModule.java
-@@ -6,6 +6,7 @@ import com.bumptech.glide.GlideBuilder;
- import com.bumptech.glide.annotation.GlideModule;
- import com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory;
- import com.bumptech.glide.module.AppGlideModule;
-+import com.bumptech.glide.request.RequestOptions;
- 
- /**
-  * https://bumptech.github.io/glide/doc/configuration.html#disk-cache<br/>
-@@ -22,5 +23,9 @@ public class GlideCachingModule extends AppGlideModule {
- 
-         // Limit cache size
-         builder.setDiskCache(new InternalCacheDiskCacheFactory(context, CACHE_SIZE));
-+
-+        // Apple TV glass sidebar takes periodic snapshots of the screen into a software bitmap (FrostedGlassView).
-+        // Hardware bitmaps can't be drawn onto a software canvas, so keep Glide images in normal memory.
-+        builder.setDefaultRequestOptions(new RequestOptions().disallowHardwareConfig());
-     }
- }
 diff --git a/smarttubetv/src/main/res/color/atv_header_text.xml b/smarttubetv/src/main/res/color/atv_header_text.xml
 new file mode 100644
 index 0000000..48f992b
