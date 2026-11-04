@@ -1,1 +1,60 @@
+name: Build Tube TV APK
 
+# Downloads the original SmartTube source (pinned to a known-good version), applies the
+# Apple TV style patch (tubetv-appletv.patch, stored next to this workflow), builds the APK
+# in the cloud and publishes it as a GitHub Release. Nothing to install on your computer.
+#
+# Start it: Actions tab -> "Build Tube TV APK" -> Run workflow.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    steps:
+      # This repository (it holds the patch file)
+      - uses: actions/checkout@v4
+
+      - name: Get SmartTube source (pinned) and apply the Apple TV patch
+        run: |
+          git init src
+          cd src
+          git remote add origin https://github.com/yuliskov/SmartTube.git
+          git fetch --depth 1 origin c8873b539d8463b3276d54e395f94e5cd2bd3198
+          git checkout FETCH_HEAD
+          git submodule update --init --recursive --depth 1
+          git apply --whitespace=nowarn ../tubetv-appletv.patch
+
+      # SmartTube needs JDK 14 or older; JDK 11 also satisfies the Android Gradle Plugin 7.4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install the SDK parts the project asks for
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platforms;android-34" "build-tools;30.0.3" "ndk;21.0.6113669"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Build
+        working-directory: src
+        run: |
+          chmod +x gradlew
+          ./gradlew --no-daemon :smarttubetv:assembleStstableDebug
+
+      - name: Publish APKs as a GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: Tube TV build ${{ github.run_number }}
+          body: "Install the *universal* APK on your Google TV."
+          files: src/smarttubetv/build/outputs/apk/ststable/debug/*.apk
+          fail_on_unmatched_files: true
