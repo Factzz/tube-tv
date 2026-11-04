@@ -1,0 +1,172 @@
+diff --git a/smarttubetv/src/main/res/drawable/atv_dialog_bg.xml b/smarttubetv/src/main/res/drawable/atv_dialog_bg.xml
+index 6bf04f1..83548b6 100644
+--- a/smarttubetv/src/main/res/drawable/atv_dialog_bg.xml
++++ b/smarttubetv/src/main/res/drawable/atv_dialog_bg.xml
+@@ -1,20 +1,21 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- Window background for dialogs. On Android 12+ the window blur (see values-v31) makes this a frosted pane -->
++<!-- Window background for dialogs. On Android 12+ the window blur (values-v31) turns this into frosted glass -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+     <item>
+         <shape android:shape="rectangle">
+-            <solid android:color="@color/atv_dialog_tint"/>
++            <solid android:color="#990F0F14"/>
+         </shape>
+     </item>
+     <item>
+         <shape android:shape="rectangle">
+-            <gradient
+-                android:type="radial"
+-                android:centerX="0.1"
+-                android:centerY="0.0"
+-                android:gradientRadius="900dp"
+-                android:startColor="#2EFFFFFF"
+-                android:endColor="#00FFFFFF"/>
++            <gradient android:type="radial" android:centerX="0.95" android:centerY="0.0"
++                android:gradientRadius="1000dp" android:startColor="#4D7C5CFF" android:endColor="#007C5CFF"/>
++        </shape>
++    </item>
++    <item>
++        <shape android:shape="rectangle">
++            <gradient android:type="radial" android:centerX="0.0" android:centerY="1.0"
++                android:gradientRadius="800dp" android:startColor="#3322D3EE" android:endColor="#0022D3EE"/>
+         </shape>
+     </item>
+ </layer-list>
+diff --git a/smarttubetv/src/main/res/drawable/atv_header_pill.xml b/smarttubetv/src/main/res/drawable/atv_header_pill.xml
+index aabed3c..36c3ac4 100644
+--- a/smarttubetv/src/main/res/drawable/atv_header_pill.xml
++++ b/smarttubetv/src/main/res/drawable/atv_header_pill.xml
+@@ -1,10 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- Focused sidebar row: bright rounded pill (tvOS style) -->
++<!-- Focused sidebar row: bright rounded "lit glass" pill (tvOS style) -->
+ <selector xmlns:android="http://schemas.android.com/apk/res/android">
+     <item android:state_focused="true">
+         <shape android:shape="rectangle">
+             <corners android:radius="28dp"/>
+-            <solid android:color="@color/atv_pill"/>
++            <gradient android:angle="270" android:startColor="#FFFFFFFF" android:endColor="#F0E3E3F4"/>
++            <stroke android:width="1dp" android:color="#66FFFFFF"/>
+         </shape>
+     </item>
+     <item>
+diff --git a/smarttubetv/src/main/res/drawable/atv_player_glass_bar.xml b/smarttubetv/src/main/res/drawable/atv_player_glass_bar.xml
+new file mode 100644
+index 0000000..366b087
+--- /dev/null
++++ b/smarttubetv/src/main/res/drawable/atv_player_glass_bar.xml
+@@ -0,0 +1,16 @@
++<?xml version="1.0" encoding="utf-8"?>
++<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:left="24dp" android:right="24dp" android:top="4dp" android:bottom="4dp">
++        <shape android:shape="rectangle">
++            <corners android:radius="30dp"/>
++            <gradient android:angle="270" android:startColor="#8C20202B" android:endColor="#B3101018"/>
++            <stroke android:width="1dp" android:color="@color/atv_glass_rim"/>
++        </shape>
++    </item>
++    <item android:left="25dp" android:right="25dp" android:top="5dp" android:bottom="70dp">
++        <shape android:shape="rectangle">
++            <corners android:topLeftRadius="29dp" android:topRightRadius="29dp"/>
++            <gradient android:angle="270" android:startColor="#24FFFFFF" android:endColor="#00FFFFFF"/>
++        </shape>
++    </item>
++</layer-list>
+diff --git a/smarttubetv/src/main/res/drawable/atv_window_bg.xml b/smarttubetv/src/main/res/drawable/atv_window_bg.xml
+index 5c91c0d..6dab332 100644
+--- a/smarttubetv/src/main/res/drawable/atv_window_bg.xml
++++ b/smarttubetv/src/main/res/drawable/atv_window_bg.xml
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- Tube Glass backdrop: YouTube near-black, a soft neutral "lit wall" glow top-left (Apple TV)
+-     and a faint YouTube-red glow bottom-right -->
++<!-- Tube+ backdrop (tvOS-like colour haze): near-black base, violet glow top-right,
++     cyan glow bottom-left, a faint wall light top-left and a soft bottom vignette -->
+ <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+     <item>
+         <shape android:shape="rectangle">
+@@ -9,24 +9,28 @@
+     </item>
+     <item>
+         <shape android:shape="rectangle">
+-            <gradient
+-                android:type="radial"
+-                android:centerX="0.18"
+-                android:centerY="0.0"
++            <gradient android:type="radial" android:centerX="0.92" android:centerY="0.0"
++                android:gradientRadius="1200dp"
++                android:startColor="@color/atv_glow_violet" android:endColor="@color/atv_glow_violet_end"/>
++        </shape>
++    </item>
++    <item>
++        <shape android:shape="rectangle">
++            <gradient android:type="radial" android:centerX="0.0" android:centerY="1.0"
+                 android:gradientRadius="1000dp"
+-                android:startColor="@color/atv_glow_light"
+-                android:endColor="@color/atv_glow_light_end"/>
++                android:startColor="@color/atv_glow_cyan" android:endColor="@color/atv_glow_cyan_end"/>
+         </shape>
+     </item>
+     <item>
+         <shape android:shape="rectangle">
+-            <gradient
+-                android:type="radial"
+-                android:centerX="0.98"
+-                android:centerY="1.0"
++            <gradient android:type="radial" android:centerX="0.15" android:centerY="0.0"
+                 android:gradientRadius="800dp"
+-                android:startColor="@color/atv_glow_red"
+-                android:endColor="@color/atv_glow_red_end"/>
++                android:startColor="@color/atv_glow_light" android:endColor="@color/atv_glow_light_end"/>
++        </shape>
++    </item>
++    <item>
++        <shape android:shape="rectangle">
++            <gradient android:angle="270" android:startColor="#00000000" android:endColor="#8C000000"/>
+         </shape>
+     </item>
+ </layer-list>
+diff --git a/smarttubetv/src/main/res/layout/lb_playback_transport_controls_row.xml b/smarttubetv/src/main/res/layout/lb_playback_transport_controls_row.xml
+index a7d7155..53b99c8 100644
+--- a/smarttubetv/src/main/res/layout/lb_playback_transport_controls_row.xml
++++ b/smarttubetv/src/main/res/layout/lb_playback_transport_controls_row.xml
+@@ -76,8 +76,9 @@
+         android:orientation="vertical"
+         android:paddingStart="?attr/browsePaddingStart"
+         android:paddingEnd="?attr/browsePaddingEnd"
+-        android:paddingTop="8dp"
+-        android:paddingBottom="14dp"
++        android:paddingTop="16dp"
++        android:paddingBottom="20dp"
++        android:background="@drawable/atv_player_glass_bar"
+         android:clipChildren="false"
+         android:clipToPadding="false" >
+ 
+diff --git a/smarttubetv/src/main/res/values/colors.xml b/smarttubetv/src/main/res/values/colors.xml
+index 20aa980..22afef8 100644
+--- a/smarttubetv/src/main/res/values/colors.xml
++++ b/smarttubetv/src/main/res/values/colors.xml
+@@ -92,4 +92,10 @@
+     <color name="lb_playback_controls_background_light">#14000000</color>
+     <color name="atv_accent_alt">#FF22D3EE</color>
+     <color name="atv_track">#40FFFFFF</color>
++    <!-- Tube+ glass palette -->
++    <color name="atv_glow_violet">#667C5CFF</color>
++    <color name="atv_glow_violet_end">#007C5CFF</color>
++    <color name="atv_glow_cyan">#4022D3EE</color>
++    <color name="atv_glow_cyan_end">#0022D3EE</color>
++    <color name="atv_glass_rim">#59FFFFFF</color>
+ </resources>
+diff --git a/smarttubetv/src/main/res/values/styles.xml b/smarttubetv/src/main/res/values/styles.xml
+index ced46f1..980ea8e 100644
+--- a/smarttubetv/src/main/res/values/styles.xml
++++ b/smarttubetv/src/main/res/values/styles.xml
+@@ -276,6 +276,7 @@
+         <!-- YouTube: no box around the video title, only the rounded thumbnail -->
+         <item name="cardDefaultBackground">@color/atv_transparent</item>
+         <item name="imageCardViewImageStyle">@style/AtvCardImage</item>
++        <item name="cardSelectedBackground">@color/atv_pill</item>
+         <item name="cardProgressStyle">@style/AtvProgress</item>
+         <item name="android:colorAccent" tools:targetApi="21">@color/white</item>
+     </style>
